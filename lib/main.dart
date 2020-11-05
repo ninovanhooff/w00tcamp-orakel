@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'package:keuzestress/my_http_overrides.dart';
-
+import 'package:keuzestress/api/question.dart';
 
 
 void main() {
+  HttpOverrides.global = MyHttpOverrides();
   runApp(MyApp());
 }
 
@@ -63,11 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
   HttpClient unsafeClient;
 
 
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    HttpOverrides.global = MyHttpOverrides();
     question = fetchQuestion();
   }
 
@@ -121,7 +118,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .headline4,
             ),
             futureBuilder()
           ],
@@ -139,86 +139,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<Question>(
         future: question,
         builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        return Text("question: " + snapshot.data.title);
-      } else if (snapshot.hasError) {
-        return Text("${snapshot.error}");
-      }
+          if (snapshot.hasData) {
+            return Text("question: " + snapshot.data.title);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-      // By default, show a loading spinner.
-      return CircularProgressIndicator();
-    });
-  }
-
-  Future<AccessToken> fetchToken() async {
-    final response = await http.post(
-      'https://noveesoft.eu.auth0.com/oauth/token',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'client_id': 'ZlWodgcuSYPLzzuMuxzwQvcbhlC8hITC',
-        'client_secret': '0LyAiez9KAE5Wd3FkglS3SaN0nfrM-7ZwWnpyyEFqedV-SAwvScUfAMBhlwlxieJ',
-        'audience': 'w00tcamp.orakel',
-        'grant_type': 'client_credentials'
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return AccessToken.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load token');
-    }
-  }
-
-  Future<Question> fetchQuestion() async {
-    final token = await fetchToken();
-    final response = await http.get(
-      'https://w00tcamp.orakel.noveesoft.com/api/question',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token.token}"
-      }
-    );
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return Question.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load Question');
-    }
-  }
-
-}
-
-class AccessToken {
-  final String token;
-
-  AccessToken({this.token});
-
-  factory AccessToken.fromJson(Map<String, dynamic> json) {
-    return AccessToken(
-      token: json['access_token']
-    );
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        });
   }
 }
-
-class Question {
-  final String title;
-
-  Question({this.title});
-
-  factory Question.fromJson(Map<String, dynamic> json) {
-    return Question(
-      title: json['title']
-    );
-  }
-}
-
