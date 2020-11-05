@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:keuzestress/my_http_overrides.dart';
 
 
 
@@ -55,13 +59,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  Future<Album> futureAlbum;
+  Future<Question> question;
+  HttpClient unsafeClient;
+
 
 
   @override
   void initState(){
     super.initState();
-    futureAlbum = fetchAlbum();
+    HttpOverrides.global = MyHttpOverrides();
+    question = fetchQuestion();
   }
 
   void _incrementCounter() {
@@ -129,11 +136,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget futureBuilder() {
-    return FutureBuilder<Album>(
-        future: futureAlbum,
+    return FutureBuilder<Question>(
+        future: question,
         builder: (context, snapshot) {
       if (snapshot.hasData) {
-        return Text("Album title: " +snapshot.data.title);
+        return Text("question: " + snapshot.data.title);
       } else if (snapshot.hasError) {
         return Text("${snapshot.error}");
       }
@@ -143,34 +150,75 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<Album> fetchAlbum() async {
-    final response = await http.get('https://jsonplaceholder.typicode.com/albums/1');
+  Future<AccessToken> fetchToken() async {
+    final response = await http.post(
+      'https://noveesoft.eu.auth0.com/oauth/token',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'client_id': 'ZlWodgcuSYPLzzuMuxzwQvcbhlC8hITC',
+        'client_secret': '0LyAiez9KAE5Wd3FkglS3SaN0nfrM-7ZwWnpyyEFqedV-SAwvScUfAMBhlwlxieJ',
+        'audience': 'w00tcamp.orakel',
+        'grant_type': 'client_credentials'
+      }),
+    );
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
-      return Album.fromJson(jsonDecode(response.body));
+      return AccessToken.fromJson(jsonDecode(response.body));
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load token');
+    }
+  }
+
+  Future<Question> fetchQuestion() async {
+    final token = await fetchToken();
+    final response = await http.get(
+      'https://w00tcamp.orakel.noveesoft.com/api/question',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token.token}"
+      }
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return Question.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load Question');
     }
   }
 
 }
 
-class Album {
-  final int userId;
-  final int id;
-  final String title;
+class AccessToken {
+  final String token;
 
-  Album({this.userId, this.id, this.title});
+  AccessToken({this.token});
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
+  factory AccessToken.fromJson(Map<String, dynamic> json) {
+    return AccessToken(
+      token: json['access_token']
     );
   }
 }
+
+class Question {
+  final String title;
+
+  Question({this.title});
+
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+      title: json['title']
+    );
+  }
+}
+
