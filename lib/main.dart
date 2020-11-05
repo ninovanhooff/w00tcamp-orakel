@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:keuzestress/api/api_service.dart';
 
 import 'package:keuzestress/my_http_overrides.dart';
 import 'package:keuzestress/api/question.dart';
@@ -60,12 +61,14 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   Future<Question> question;
   HttpClient unsafeClient;
+  ApiService api = ApiService();
 
 
   @override
   void initState() {
     super.initState();
-    question = fetchQuestion();
+
+    question = api.fetchQuestion();
   }
 
   void _incrementCounter() {
