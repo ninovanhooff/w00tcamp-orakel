@@ -52,6 +52,32 @@ class ApiService {
     }
   }
 
+  Future submitAnswer(Question question, String answerId) async {
+    final headers = await _defaultHeaders();
+    final userId = (await _ensureUser()).userId.toUpperCase();
+
+    final response = await http.post(
+        'https://w00tcamp.orakel.noveesoft.com/api/answer',
+        headers: headers,
+        body: jsonEncode(<String, Object>{
+          "userId": userId,
+          "questionId": question.questionId,
+          "skipped": answerId == null,
+          "choosenOptionId": answerId 
+        })
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then return
+      return;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to submit Answer');
+    }
+  }
+
   Future<User> createUser() async {
     final headers = await _defaultHeaders();
 

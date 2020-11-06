@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:keuzestress/theming.dart';
 
+import 'answer_screen.dart';
 import 'api/api_service.dart';
 import 'api/question.dart';
 
@@ -18,33 +19,42 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
     with TickerProviderStateMixin {
 
   ApiService api = ApiService();
-  Future<Question> question;
-
-  List<String> welcomeImages = [
-    "assets/images/helene_fischer.jpg",
-    "assets/images/mario.jpg",
-    "assets/images/helene_fischer.jpg",
-    "assets/images/mario.jpg",
-    "assets/images/mario.jpg",
-  ];
+  Question question;
+  Future<Question> futureQuestion;
 
   @override
   void initState() {
     super.initState();
 
-    question = api.fetchQuestion();
+    futureQuestion = api.fetchQuestion();
   }
 
-  _pushOptionA() {
+  _pushOptionA() async {
     print("option A");
+    await api.submitAnswer(question, question.optionAId);
+    _goToResults();
   }
 
-  _pushOptionB() {
+  _pushOptionB() async {
     print("option B");
+    await api.submitAnswer(question, question.optionAId);
+    _goToResults();
   }
 
-  _pushSkipQuestion() {
+  _pushSkipQuestion() async {
     print("skip");
+    await api.submitAnswer(question, null);
+    _goToResults();
+  }
+
+  _goToResults() async{
+    futureQuestion =  api.fetchQuestion();
+    Navigator.of(context).push(
+        MaterialPageRoute<void>(
+            builder: (BuildContext context) {
+              return AnswerScreen();
+            },
+            maintainState: false));
   }
 
 
@@ -63,80 +73,85 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
                   "Vraag",
                   style: Theme.of(context).textTheme.headline5,
                 )),
-            Stack(
-              clipBehavior: Clip.none, //allows positioning the question outside bounds
-              children: <Widget>[
-                Container(
-                  // influences height above cards stack
-                  height: MediaQuery.of(context).size.width * 1.2,
-                  padding: EdgeInsets.fromLTRB(0,0,0, 52),
-                  child: new TinderSwapCard(
-                    swipeUp: true,
-                    swipeDown: true,
-                    orientation: AmassOrientation.BOTTOM,
-                    totalNum: welcomeImages.length,
-                    stackNum: 3,
-                    swipeEdge: 4.0,
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                    maxHeight: MediaQuery.of(context).size.width * 0.9,
-                    minWidth: MediaQuery.of(context).size.width * 0.8,
-                    minHeight: MediaQuery.of(context).size.width * 0.8,
-                    cardBuilder: (context, index) => Transform.rotate(
-                        angle: -pi / 70.0,
-                        child: Card(
-                          color: Colors.white,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Image.asset('${welcomeImages[index]}'),
-                          ),
-                        )),
-                    cardController: controller = CardController(),
-                    swipeUpdateCallback:
-                        (DragUpdateDetails details, Alignment align) {
-                      /// Get swiping card's alignment
-                      if (align.x < 0) {
-                        //Card is LEFT swiping
-                      } else if (align.x > 0) {
-                        //Card is RIGHT swiping
-                      }
-                    },
-                    swipeCompleteCallback:
-                        (CardSwipeOrientation orientation, int index) {
-                      /// Get orientation & index of swiped card!
-                    },
-                  ),
-                ),
-                Positioned(
-                    bottom: 0,
-                    left: 50,
-                    right: 20,
-                    child: Card(
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-                            child: questionBuilder())))
-              ],
-            ),
-            const SizedBox(height: 24,),
-            Container(
-              width: 280,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget> [
-                RaisedButton(onPressed: _pushOptionA , child: Text("Hallo"), color: OrakelColors.confirmColor),
-                RaisedButton(onPressed: _pushOptionB , child: Text("Hallo2"),color: OrakelColors.denyColor),
-                RaisedButton(onPressed: _pushSkipQuestion , child: Text("Overslaan"),color: OrakelColors.skipColor, textColor: Colors.black,),
-              ]),
-            )
+            questionBuilder(controller),
           ],
         ),
       ),
     );
   }
 
-  Widget questionBuilder() {
+  Widget questionBuilder(CardController controller) {
     return FutureBuilder<Question>(
-        future: question,
+        future: futureQuestion,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Text(snapshot.data.question);
+            question = snapshot.data;
+            return Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none, //allows positioning the question outside bounds
+                  children: <Widget>[
+                    Container(
+                      // influences height above cards stack
+                      height: MediaQuery.of(context).size.width * 1.2,
+                      padding: EdgeInsets.fromLTRB(0,0,0, 52),
+                      child: new TinderSwapCard(
+                        swipeUp: true,
+                        swipeDown: true,
+                        orientation: AmassOrientation.BOTTOM,
+                        totalNum: 1,
+                        stackNum: 3,
+                        swipeEdge: 4.0,
+                        maxWidth: MediaQuery.of(context).size.width * 0.9,
+                        maxHeight: MediaQuery.of(context).size.width * 0.9,
+                        minWidth: MediaQuery.of(context).size.width * 0.8,
+                        minHeight: MediaQuery.of(context).size.width * 0.8,
+                        cardBuilder: (context, index) => Transform.rotate(
+                            angle: -pi / 70.0,
+                            child: Card(
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Image.network(snapshot.data.imageUrl, fit: BoxFit.cover,),
+                              ),
+                            )),
+                        cardController: controller = CardController(),
+                        swipeUpdateCallback:
+                            (DragUpdateDetails details, Alignment align) {
+                          /// Get swiping card's alignment
+                          if (align.x < 0) {
+                            //Card is LEFT swiping
+                          } else if (align.x > 0) {
+                            //Card is RIGHT swiping
+                          }
+                        },
+                        swipeCompleteCallback:
+                            (CardSwipeOrientation orientation, int index) {
+                          /// Get orientation & index of swiped card!
+                        },
+                      ),
+                    ),
+                    Positioned(
+                        bottom: 0,
+                        left: 50,
+                        right: 20,
+                        child: Card(
+                            child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+                                child: Text(snapshot.data.question))))
+                  ],
+                ),
+                const SizedBox(height: 24,),
+                Container(
+                  width: 280,
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget> [
+                    RaisedButton(onPressed: _pushOptionA , child: Text(snapshot.data.optionA), color: OrakelColors.confirmColor),
+                    RaisedButton(onPressed: _pushOptionB , child: Text(snapshot.data.optionB),color: OrakelColors.denyColor),
+                    RaisedButton(onPressed: _pushSkipQuestion , child: Text("Overslaan"),color: OrakelColors.skipColor, textColor: Colors.black,),
+                  ]),
+                )
+              ],
+            );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}",
                 style: Theme
