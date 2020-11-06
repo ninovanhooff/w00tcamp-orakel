@@ -52,7 +52,7 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
     Navigator.of(context).push(
         MaterialPageRoute<void>(
             builder: (BuildContext context) {
-              return AnswerScreen();
+              return AnswerScreen(question.questionId);
             },
             maintainState: false));
   }

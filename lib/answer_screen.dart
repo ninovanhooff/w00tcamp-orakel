@@ -7,23 +7,20 @@ import 'dart:math';
 import 'package:keuzestress/theming.dart';
 
 class AnswerScreen extends StatefulWidget {
+  final questionId;
+
+  AnswerScreen(this.questionId);
+
   @override
-  _AnswerScreenState createState() => _AnswerScreenState();
+  _AnswerScreenState createState() => _AnswerScreenState(questionId);
 }
 
 class _AnswerScreenState extends State<AnswerScreen>
     with TickerProviderStateMixin {
-  List<String> welcomeImages = [
-    "assets/images/helene_fischer.jpg",
-    "assets/images/mario.jpg",
-    "assets/images/helene_fischer.jpg",
-    "assets/images/mario.jpg",
-    "assets/images/mario.jpg",
-  ];
 
-  _pushClose() {
-    //todo
-  }
+  String questionId;
+
+  _AnswerScreenState(this.questionId);
 
   @override
   Widget build(BuildContext context) {
