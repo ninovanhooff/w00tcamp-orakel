@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "282185053332",
+    "firebase_url": "https://w00tcamp-orakel.firebaseio.com",
+    "project_id": "w00tcamp-orakel",
+    "storage_bucket": "w00tcamp-orakel.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282185053332:android:3d54bcdb0a95d1d6337081",
+        "android_client_info": {
+          "package_name": "com.ninovanhooff.keuzestress"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "282185053332-dss4llldbvhdcbpn2tij3au8m31i8mi4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIZLm262M_cBtiP3aPuDPCv8-eLdiXJcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "282185053332-dss4llldbvhdcbpn2tij3au8m31i8mi4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
