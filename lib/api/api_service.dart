@@ -15,7 +15,7 @@ class ApiService {
 
   Future<AccessToken> _ensureToken() async {
     if (_token == null){
-      _token = await fetchToken();
+      _token = await _fetchToken();
     }
 
     return _token;
@@ -40,7 +40,7 @@ class ApiService {
     }
   }
 
-  Future<AccessToken> fetchToken() async {
+  Future<AccessToken> _fetchToken() async {
     final response = await http.post(
       'https://noveesoft.eu.auth0.com/oauth/token',
       headers: <String, String>{
