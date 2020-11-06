@@ -8,6 +8,9 @@ class OrakelColors {
   static const confirmColor = Color(0xFF06606D);
   static const denyColor = Color(0xFFB15B59);
   static const skipColor = Color(0xFFFFFFFF);
+
+  static const answerBarEmptyColor = Color(0xFFFF7045);
+  static const answerBarFilledColor = Color(0xFF03A3BC);
 }
 
 // class CustomTextStyle {

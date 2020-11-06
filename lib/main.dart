@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:keuzestress/answer_screen.dart';
 import 'package:keuzestress/api/api_service.dart';
 
 import 'package:keuzestress/my_http_overrides.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         brightness: Brightness.dark,
       ),
-      home: QuestionSwipeScreen(),
+      home: AnswerScreen(),
     );
   }
 }
