@@ -57,7 +57,10 @@ class ApiService {
 
     final response = await http.post(
         'https://w00tcamp.orakel.noveesoft.com/api/user',
-        headers: headers
+        headers: headers,
+        body: jsonEncode(<String, String>{
+          "gender": "female"
+        })
     );
 
     if (response.statusCode == 200) {

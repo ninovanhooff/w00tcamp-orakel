@@ -6,6 +6,9 @@ import 'dart:math';
 
 import 'package:keuzestress/theming.dart';
 
+import 'api/api_service.dart';
+import 'api/question.dart';
+
 class QuestionSwipeScreen extends StatefulWidget {
   @override
   _QuestionSwipeScreenState createState() => _QuestionSwipeScreenState();
@@ -13,6 +16,10 @@ class QuestionSwipeScreen extends StatefulWidget {
 
 class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
     with TickerProviderStateMixin {
+
+  ApiService api = ApiService();
+  Future<Question> question;
+
   List<String> welcomeImages = [
     "assets/images/helene_fischer.jpg",
     "assets/images/mario.jpg",
@@ -20,6 +27,13 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
     "assets/images/mario.jpg",
     "assets/images/mario.jpg",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    question = api.fetchQuestion();
+  }
 
   _pushOptionA() {
     print("option A");
@@ -99,7 +113,7 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
                     child: Card(
                         child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-                            child: Text("Dit is Helene Fischer. Een Duitse zangeres die steeds meer bekendheid krijgt in Nederland. Ken je haar?"))))
+                            child: questionBuilder())))
               ],
             ),
             const SizedBox(height: 24,),
@@ -115,6 +129,25 @@ class _QuestionSwipeScreenState extends State<QuestionSwipeScreen>
         ),
       ),
     );
+  }
+
+  Widget questionBuilder() {
+    return FutureBuilder<Question>(
+        future: question,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Text(snapshot.data.question);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}",
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .headline5);
+          }
+
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        });
   }
 
 }

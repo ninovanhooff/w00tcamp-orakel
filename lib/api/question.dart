@@ -1,11 +1,13 @@
 class Question {
-  final String title;
+  final String question;
+  final String imageUrl;
 
-  Question({this.title});
+  Question({this.question, this.imageUrl});
 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
-        title: json['title']
+        question: json['question'],
+        imageUrl: json['imageUrl']
     );
   }
 }
