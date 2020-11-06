@@ -5,6 +5,7 @@ import 'package:keuzestress/api/api_service.dart';
 
 import 'package:keuzestress/my_http_overrides.dart';
 import 'package:keuzestress/api/question.dart';
+import 'package:keuzestress/question_swipe_screen.dart';
 
 
 void main() {
@@ -29,12 +30,18 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.blue,
+        textTheme: TextTheme(
+          headline5: TextStyle(
+            fontWeight: FontWeight.bold
+          ),
+        ),
         // This makes the visual density adapt to the platform that you run
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        brightness: Brightness.dark,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: QuestionSwipeScreen(),
     );
   }
 }
@@ -116,16 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline4,
-            ),
+
             futureBuilder()
           ],
         ),
@@ -143,9 +141,18 @@ class _MyHomePageState extends State<MyHomePage> {
         future: question,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Text("question: " + snapshot.data.title);
+            return Text("result: " + snapshot.data.title,
+                style: Theme
+                .of(context)
+                .textTheme
+                .headline4,
+            );
           } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
+            return Text("${snapshot.error}",
+                style: Theme
+                .of(context)
+                .textTheme
+                .headline5);
           }
 
           // By default, show a loading spinner.
