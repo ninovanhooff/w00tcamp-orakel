@@ -4,10 +4,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:keuzestress/api/question.dart';
+import 'package:keuzestress/api/user.dart';
 
 class ApiService {
   static final ApiService _singleton = ApiService._internal();
   AccessToken _token;
+
+  User _user;
 
   factory ApiService() {
     return _singleton;
@@ -21,11 +24,20 @@ class ApiService {
     return _token;
   }
 
+  Future<User> _ensureUser() async {
+    if (_user == null){
+      _user = await createUser();
+    }
+
+    return _user;
+  }
+
   Future<Question> fetchQuestion() async {
     final headers = await _defaultHeaders();
+    final userId = (await _ensureUser()).userId.toUpperCase();
 
     final response = await http.get(
-        'https://w00tcamp.orakel.noveesoft.com/api/question',
+        'https://w00tcamp.orakel.noveesoft.com/api/question?userId=$userId',
         headers: headers
     );
 
@@ -37,6 +49,25 @@ class ApiService {
       // If the server did not return a 200 OK response,
       // then throw an exception.
       throw Exception('Failed to load Question');
+    }
+  }
+
+  Future<User> createUser() async {
+    final headers = await _defaultHeaders();
+
+    final response = await http.post(
+        'https://w00tcamp.orakel.noveesoft.com/api/user',
+        headers: headers
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to create User');
     }
   }
 
@@ -64,6 +95,7 @@ class ApiService {
       throw Exception('Failed to load token');
     }
   }
+
 
   _defaultHeaders() async {
     final token = await _ensureToken();
